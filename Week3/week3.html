@@ -1,0 +1,105 @@
+<!-- joey dixon 10-26-25 -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Studio Ghibli Films</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      color: black;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid black;
+      padding-bottom: 10px;
+    }
+
+    #controls {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    label {
+      font-size: 1rem;
+    }
+
+    select {
+      margin-left: 5px;
+    }
+
+    #films {
+      max-width: 700px;
+      margin: 20px auto;
+    }
+
+    .film {
+      border: 1px solid black;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: white;
+    }
+
+    h2 {
+      margin: 0 0 5px;
+    }
+
+    p {
+      margin: 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Studio Ghibli Films</h1>
+
+  <div id="controls">
+    <label for="yearFilter">
+      films released after: <span id="yearDisplay">All years</span>
+    </label>
+    <select id="yearFilter" onchange="fetchFilms()">
+      <option value="0">All years</option>
+      <option value="1985">1985</option>
+      <option value="1990">1990</option>
+      <option value="2000">2000</option>
+      <option value="2010">2010</option>
+    </select>
+  </div>
+
+  <div id="films"></div>
+
+  <script>
+    async function fetchFilms() {
+      const minYear = document.getElementById("yearFilter").value;
+      const yearDisplay = document.getElementById("yearDisplay");
+      yearDisplay.textContent = minYear === "0" ? "All years" : minYear;
+
+      const response = await fetch("https://ghibliapi.vercel.app/films");
+      const films = await response.json();
+
+      const filteredFilms = films.filter(film => Number(film.release_date) > Number(minYear));
+
+      const container = document.getElementById("films");
+      container.innerHTML = "";
+
+      filteredFilms.forEach(film => {
+        const filmDiv = document.createElement("div");
+        filmDiv.className = "film";
+        filmDiv.innerHTML = `
+          <h2>${film.title}</h2>
+          <p><strong>Director:</strong> ${film.director}</p>
+          <p><strong>Release Year:</strong> ${film.release_date}</p>
+          <p>${film.description}</p>
+        `;
+        container.appendChild(filmDiv);
+      });
+    }
+
+    fetchFilms();
+  </script>
+</body>
+</html>
